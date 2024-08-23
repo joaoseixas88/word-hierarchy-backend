@@ -4,7 +4,7 @@ import {
   WordHierarchyThreeResult,
 } from "../src/types";
 import { WordHierarchyAnalizer } from "../src/word-hierarchy-analyzer";
-import { extenseText } from "./extense-text";
+import { extenseText } from "./mocks/extense-text";
 
 const threeExample = {
   Animais: {
