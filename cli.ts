@@ -87,11 +87,11 @@ async function main() {
         const data = [
           {
             Description: "Tempo de carregamento dos parâmetros",
-            Time: fileMaker.timeLapsed,
+            Time: `${fileMaker.timeLapsed} ms`
           },
           {
             Description: "Tempo de verificação da frase",
-            Time: textAnalyzer.timeLapsed,
+            Time: `${textAnalyzer.timeLapsed} ms`,
           },
         ];
         console.table(data);
