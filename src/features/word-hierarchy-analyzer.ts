@@ -2,7 +2,7 @@ import {
   WordHierarchyMaker,
   WordHierarchyThree,
   WordHierarchyThreeResult,
-} from "./types";
+} from "../types";
 
 export class WordHierarchyAnalizer {
   constructor(private readonly wordHierarchyMaker: WordHierarchyMaker) {}
