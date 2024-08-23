@@ -22,8 +22,22 @@ const makeSut = () => {
 describe("WordHierarchyMakerByFile", () => {
   it("it should throws an error if filepath is not correct", async () => {
     const { validator } = makeSut();
-    const sut = new WordHierarchyMakerByFile(validator, "any_invalid_directory");
+    const sut = new WordHierarchyMakerByFile(
+      validator,
+      "any_invalid_directory"
+    );
     const promise = sut.make();
-		await expect(promise).rejects.toEqual(new Error('Error reading file'))
+    await expect(promise).rejects.toEqual(new Error("Error reading file"));
+  });
+  it("it should throws an error if validator fails", async () => {
+    const { sut, validator } = makeSut();
+    jest.spyOn(validator, "isValid").mockReturnValueOnce(false);
+    const promise = sut.make();
+
+    await expect(promise).rejects.toEqual(
+      new Error(
+        "Object readed is not in valid format, the object example and type is in README.md"
+      )
+    );
   });
 });
