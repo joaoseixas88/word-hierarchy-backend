@@ -77,8 +77,33 @@ describe("WordHierarchyAnalizer", () => {
   it("should get values correctly by depth", async () => {
     const { sut } = makeSut();
     const getValues = (depth: number) => sut["getValuesByDepth"](depth);
-		expect(await getValues(0)).toEqual(['Animais'])
-		expect(await getValues(1)).toEqual(["Mamíferos", "Aves"])
-		expect(await getValues(2).then(res => res.sort())).toEqual(expected['2'].sort())
+    expect(await getValues(0)).toEqual(["Animais"]);
+    expect(await getValues(1)).toEqual(["Mamíferos", "Aves"]);
+    expect(await getValues(2).then((res) => res.sort())).toEqual(
+      expected["2"].sort()
+    );
+  });
+
+  it("should get values correctly by depth", async () => {
+    const { sut } = makeSut();
+    const result = await sut.analize({
+      depth: 3,
+      text: "os felinos, geralmente, são carnívoros",
+    });
+    const result_2 = await sut.analize({
+      depth: 2,
+      text: "os felinos, geralmente, são carnívoros",
+    });
+    const result_3 = await sut.analize({
+      depth: 3,
+      text: "Os pardais, os papagaios e os canários são pássaros lindíssimos, porém dentre eles, o canário é o mais belo de todos e são ainda mais belos os canários encontrados livres na natureza. ",
+    });
+    expect(result).toEqual([{ value: "Felinos", amount: 1 }]);
+    expect(result_2).toEqual([{ value: "Carnívoros", amount: 1 }]);
+    expect(result_3).toEqual([
+      { value: "Canários", amount: 2 },
+      { value: "Papagaios", amount: 1 },
+      { value: "Pardais", amount: 1 },
+    ]);
   });
 });

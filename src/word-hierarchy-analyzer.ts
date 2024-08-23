@@ -1,6 +1,8 @@
-import { WordHierarchyMaker, WordHierarchyThree, WordHierarchyThreeResult } from "./types";
-
-
+import {
+  WordHierarchyMaker,
+  WordHierarchyThree,
+  WordHierarchyThreeResult,
+} from "./types";
 
 export class WordHierarchyAnalizer {
   constructor(private readonly wordHierarchyMaker: WordHierarchyMaker) {}
@@ -38,13 +40,28 @@ export class WordHierarchyAnalizer {
   }
 
   private async getValuesByDepth(depth: number) {
-		const wordThree = await this.wordHierarchyMaker.make();
-		const result = this.recursionAnalyze(wordThree)
-    return result[depth]
+    const wordThree = await this.wordHierarchyMaker.make();
+    const result = this.recursionAnalyze(wordThree);
+    return result[depth];
   }
-  analize(input: WordHierarchyAnalizer.Input) {
+  async analize(
+    input: WordHierarchyAnalizer.Input
+  ): Promise<WordHierarchyAnalizer.Output> {
     const { depth, text } = input;
-		
+    const valuesToCheck = await this.getValuesByDepth(depth);
+    const result = valuesToCheck.reduce((acc, keyToCheck) => {
+      const regex = new RegExp(`\\b${keyToCheck}\\b`, "gi");
+      const matches = text.match(regex);
+      if (matches?.length) {
+        acc.push({
+          value: keyToCheck,
+          amount: matches.length,
+        });
+      }
+      return acc;
+    }, [] as WordHierarchyAnalizer.Output);
+
+    return result;
   }
 }
 
@@ -53,4 +70,8 @@ export namespace WordHierarchyAnalizer {
     depth: number;
     text: string;
   };
+  export type Output = {
+    value: string;
+    amount: number;
+  }[];
 }
