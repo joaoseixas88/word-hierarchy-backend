@@ -1,9 +1,9 @@
+import { WordHierarchyAnalizer } from "../src/features";
 import {
   WordHierarchyMaker,
   WordHierarchyThree,
   WordHierarchyThreeResult,
 } from "../src/types";
-import { WordHierarchyAnalizer } from "../src/word-hierarchy-analyzer";
 import { extenseText } from "./mocks/extense-text";
 
 const threeExample = {
