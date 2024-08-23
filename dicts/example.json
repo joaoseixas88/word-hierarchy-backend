@@ -1,0 +1,31 @@
+{
+  "Animais": {
+    "Mamíferos": {
+      "Carnívoros": {
+        "Felinos": ["Leões", "Tigres", "Jaguares", "Leopardos"]
+      },
+      "Herbívoros": {
+        "Equídeos": ["Cavalos", "Zebras", "Asnos"],
+        "Bovídeos": ["Bois", "Búfalos", "Antílopes", "Cabras"]
+      },
+      "Primatas": ["Gorilas", "Chimpanzés", "Orangotangos"]
+    },
+    "Aves": {
+      "Rapinas": ["Águias", "Falcões", "Corujas", "Milhafres"],
+      "Pássaros": ["Canários", "Papagaios", "Pardais", "Rouxinóis"]
+    }
+  },
+  "Construções": {
+    "Edifícios": {
+      "Residenciais": ["Casas", "Apartamentos", "Sobrados"],
+      "Comerciais": ["Escritórios", "Lojas", "Shopping Centers"],
+      "Industriais": ["Fábricas", "Armazéns", "Galpões"]
+    },
+    "Infraestrutura": {
+      "Transportes": ["Rodovias", "Ferrovias", "Aeroportos"],
+      "Energia": ["Usinas", "Subestações", "Linhas de Transmissão"],
+      "Hidráulica": ["Barragens", "Canalizações", "Reservatórios"]
+    },
+    "Monumentos": ["Estátuas", "Praças", "Memoriais"]
+  }
+}
