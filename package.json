@@ -17,5 +17,8 @@
   "scripts": {
     "test": "jest",
     "test:watch": "jest --watch"
+  },
+  "dependencies": {
+    "zod": "^3.23.8"
   }
 }

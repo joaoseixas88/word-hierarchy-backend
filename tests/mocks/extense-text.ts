@@ -50,16 +50,7 @@ Felinos, bois, equídeos e primatas são representantes de uma diversidade incr�
 
 /**
 
-Esse texto foi (obviamente) gerado pelo ChatGPT e de acordo com o esperado ele deve ter: ()
-
-
-Felinos: 15 vezes
-Bois: 15 vezes
-Equídeos: 11 vezes
-Primatas: 17 vezes ​
-
-confesso que não li o texto para conferir se o resultado está como esperado
-
+Esse texto foi (obviamente) gerado pelo ChatGPT.
 Meu input no gpt:
 Criar um texto com mais de 5.000 caracteres que inclua as palavras "felinos", "bois", "equídeos" e "primatas" pode ser feito de forma a abordar um tema central que una esses diferentes grupos de animais. Vamos seguir uma abordagem que fale sobre a evolução e a diversidade dos mamíferos, considerando suas características, comportamentos e o papel que desempenham na ecologia e na cultura humana.
 */
