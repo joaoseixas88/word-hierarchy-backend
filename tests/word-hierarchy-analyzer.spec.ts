@@ -59,7 +59,7 @@ const sortData = (val: WordHierarchyThreeResult) =>
 describe("WordHierarchyAnalizer", () => {
   it("it shoult get the depth three correctly", () => {
     const { sut } = makeSut();
-    const result = sut.recursionAnalyze(threeExample);
+    const result = sut['recursionAnalyze'](threeExample);
 
     expect(sortData(result)).toEqual(sortData(expected));
   });

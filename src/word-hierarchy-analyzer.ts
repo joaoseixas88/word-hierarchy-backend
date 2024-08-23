@@ -1,8 +1,7 @@
 import { WordHierarchyThree, WordHierarchyThreeResult } from "./types";
 
 export class WordHierarchyAnalizer {
-  analize() {}
-  recursionAnalyze(
+  private recursionAnalyze(
     objectThree: WordHierarchyThree,
     depth: number = 0,
     result: WordHierarchyThreeResult = {}
@@ -34,4 +33,5 @@ export class WordHierarchyAnalizer {
 
     return result;
   }
+  analize() {}
 }
