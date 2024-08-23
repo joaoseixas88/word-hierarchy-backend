@@ -2,66 +2,97 @@ import {
   WordHierarchyMaker,
   WordHierarchyThree,
   WordHierarchyThreeResult,
+  WordHierarchyThreeResultWithChildren,
 } from "../types";
+
+type ResultType = {
+  key: string;
+  children: string[];
+};
 
 export class WordHierarchyAnalizer {
   constructor(private readonly wordHierarchyMaker: WordHierarchyMaker) {}
-  private recursionAnalyze(
-    objectThree: WordHierarchyThree,
-    depth: number = 0,
-    result: WordHierarchyThreeResult = {}
-  ): WordHierarchyThreeResult {
-    if (!result[depth]) {
-      result[depth] = [];
+
+  getChildrenData(
+    obj: Record<string, object | string[]>,
+    words: string[] = []
+  ): string[] {
+    for (const key in obj) {
+      const currentNode = obj[key];
+      words.push(key);
+      if (Array.isArray(currentNode)) {
+        words.push(...currentNode);
+        continue;
+      }
+      if (!Array.isArray(currentNode) && typeof currentNode === "object") {
+        const currentNodesChildren = this.getChildrenData(
+          currentNode as Record<string, object | string[]>
+        );
+        words.push(...currentNodesChildren);
+        continue;
+      }
     }
+    return words;
+  }
 
-    for (const key in objectThree) {
-      result[depth].push(key);
-
-      const isObject =
-        typeof objectThree[key] === "object" &&
-        !Array.isArray(objectThree[key]);
-      if (isObject) {
-        this.recursionAnalyze(
-          objectThree[key] as WordHierarchyThree,
-          depth + 1,
+  getLevels(
+    obj: Record<string, object | string[]>,
+    currenctDepth: number = 1,
+    result: Record<string | number, ResultType[]> = {}
+  ) {
+    if (!result[currenctDepth]) {
+      result[currenctDepth] = [];
+    }
+    for (const key in obj) {
+      const currentNode = obj[key];
+      if (Array.isArray(currentNode)) {
+        result[currenctDepth].push({ key, children: currentNode.concat(key) });
+        continue;
+      }
+      if (!Array.isArray(currentNode) && typeof currentNode === "object") {
+        const children = this.getChildrenData(
+          currentNode as Record<string, object | string[]>
+        );
+        result[currenctDepth].push({ key, children: [key].concat(children) });
+        this.getLevels(
+          currentNode as Record<string, object | string[]>,
+          currenctDepth + 1,
           result
         );
-      }
-      if (Array.isArray(objectThree[key])) {
-        if (!result[depth + 1]) {
-          result[depth + 1] = [];
-        }
-        result[depth + 1].push(...objectThree[key]);
+        continue;
       }
     }
-
     return result;
   }
-
-  private async getValuesByDepth(depth: number) {
-    const wordThree = await this.wordHierarchyMaker.make();
-    const result = this.recursionAnalyze(wordThree);
-    return result[depth];
+  async getDepth(depth: number) {
+    const data = await this.wordHierarchyMaker.make();
+    const allLevels = this.getLevels(data);
+    return allLevels[depth];
   }
-  async analize(
-    input: WordHierarchyAnalizer.Input
-  ): Promise<WordHierarchyAnalizer.Output> {
-    const { depth, text } = input;
-    const valuesToCheck = await this.getValuesByDepth(depth);
-    const result = valuesToCheck.reduce((acc, keyToCheck) => {
-      const regex = new RegExp(`\\b${keyToCheck}\\b`, "gi");
-      const matches = text.match(regex);
-      if (matches?.length) {
-        acc.push({
-          value: keyToCheck,
-          amount: matches.length,
-        });
+
+  async analyze({
+    depth,
+    text,
+  }: WordHierarchyAnalizer.Input): Promise<WordHierarchyAnalizer.Output> {
+    const depthData = await this.getDepth(depth);
+		if(!depthData) return []
+    const result: WordHierarchyAnalizer.Output = Object.values(depthData).map(
+      ({ children, key }) => {
+        let amount = 0;
+        for (const value of children) {
+          const regex = new RegExp(`\\b${value}\\b`, "gi");
+          const matches = text.match(regex);
+          if (matches?.length) {
+            amount += matches.length;
+          }
+        }
+        return {
+          amount,
+          value: key,
+        };
       }
-      return acc;
-    }, [] as WordHierarchyAnalizer.Output);
-
-    return result;
+    );
+		return result.filter(val => val.amount)
   }
 }
 

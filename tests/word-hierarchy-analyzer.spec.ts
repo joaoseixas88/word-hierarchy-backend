@@ -31,11 +31,12 @@ const makeSut = () => {
       return new Promise((res) => res(threeExample));
     }
   }
-
-  const sut = new WordHierarchyAnalizer(new WordHierarchyMakerStub());
+  const wordHierarchyStub = new WordHierarchyMakerStub();
+  const sut = new WordHierarchyAnalizer(wordHierarchyStub);
 
   return {
     sut,
+    wordHierarchyStub,
   };
 };
 
@@ -68,72 +69,179 @@ const sortData = (val: WordHierarchyThreeResult) =>
   Object.entries(val).map(([key, value]) => [key, value.sort()]);
 
 describe("WordHierarchyAnalizer", () => {
-  it("it shoult get the depth three correctly", () => {
+  it("should return all children data", () => {
     const { sut } = makeSut();
-    const result = sut["recursionAnalyze"](threeExample);
-
-    expect(sortData(result)).toEqual(sortData(expected));
-  });
-
-  it("should get values correctly by depth", async () => {
-    const { sut } = makeSut();
-    const getValues = (depth: number) => sut["getValuesByDepth"](depth);
-    expect(await getValues(0)).toEqual(["Animais"]);
-    expect(await getValues(1)).toEqual(["Mamíferos", "Aves"]);
-    expect(await getValues(2).then((res) => res.sort())).toEqual(
-      expected["2"].sort()
+    const result = sut.getChildrenData({
+      values: {
+        some: { data: ["value_1", "value_2"] },
+        anotherValue: {
+          internal: ["someInternalValue"],
+        },
+      },
+      secondValues: ["all"],
+    });
+    expect(result).toEqual(
+      expect.arrayContaining([
+        "values",
+        "some",
+        "anotherValue",
+        "secondValues",
+        "all",
+        "internal",
+        "someInternalValue",
+        "value_1",
+        "value_2",
+      ])
     );
   });
-
-  it("should get values correctly by depth", async () => {
+  it("should return all children data", () => {
     const { sut } = makeSut();
-    const result = await sut.analize({
-      depth: 3,
-      text: "os felinos, geralmente, são carnívoros",
+    const result = sut.getChildrenData({
+      values: ["alguns", "valores"],
     });
-    const result_2 = await sut.analize({
-      depth: 2,
-      text: "os felinos, geralmente, são carnívoros",
-    });
-    const result_3 = await sut.analize({
-      depth: 3,
-      text: "Os pardais, os papagaios e os canários são pássaros lindíssimos, porém dentre eles, o canário é o mais belo de todos e são ainda mais belos os canários encontrados livres na natureza. ",
-    });
-    expect(result).toEqual([{ value: "Felinos", amount: 1 }]);
-    expect(result_2).toEqual([{ value: "Carnívoros", amount: 1 }]);
-    expect(result_3).toEqual([
-      { value: "Canários", amount: 2 },
-      { value: "Papagaios", amount: 1 },
-      { value: "Pardais", amount: 1 },
+    expect(result).toEqual(
+      expect.arrayContaining(["values", "alguns", "valores"])
+    );
+  });
+  it("should return all levels with correct keys and children values", () => {
+    const { sut } = makeSut();
+    const result = sut.getLevels({
+      animais: {
+        felinos: ["gatos", "leões"],
+      },
+      construcoes: ["casas", "edificios"],
+    }) as object;
+    expect(result[1][0].children).toEqual(
+      expect.arrayContaining(["animais", "gatos", "leões", "felinos"])
+    );
+    expect(result[1][1].children).toEqual(
+      expect.arrayContaining(["casas", "edificios", "construcoes"])
+    );
+    expect(result[2][0].children).toEqual(
+      expect.arrayContaining(["gatos", "leões", "felinos"])
+    );
+  });
+  it("should go deep and get correct values", () => {
+    const { sut } = makeSut();
+    const result = sut.getLevels({
+      animais: {
+        felinos: {
+          carnivoros: {
+            selvagens: ["leões"],
+            doceis: ["gatos"],
+          },
+        },
+      },
+    }) as object;
+    expect(result[3][0].children).toEqual(
+      expect.arrayContaining(["carnivoros", "gatos", "leões", "selvagens"])
+    );
+    expect(result[4][0].children).toEqual(
+      expect.arrayContaining(["leões", "selvagens"])
+    );
+    expect(result[4][1].children).toEqual(
+      expect.arrayContaining(["gatos", "doceis"])
+    );
+  });
+  it("should go very deep and get correct values", () => {
+    const { sut } = makeSut();
+    const result = sut.getLevels({
+      some: {
+        very: {
+          deep: {
+            values: {
+              internal: {
+                very: {
+                  internal: ["values"],
+                },
+              },
+            },
+          },
+        },
+      },
+    }) as object;
+    expect(result[7][0].children).toEqual(
+      expect.arrayContaining(["internal", "values"])
+    );
+  });
+  it("should return undefined if a level does not exits", () => {
+    const { sut } = makeSut();
+    const result = sut.getLevels({
+      some: {
+        very: {
+          deep: {
+            values: {
+              internal: {
+                very: {
+                  internal: ["values"],
+                },
+              },
+            },
+          },
+        },
+      },
+    }) as object;
+    expect(result[8]).toBe(undefined);
+  });
+
+  it("should return correct level", async () => {
+    const { sut, wordHierarchyStub } = makeSut();
+    jest.spyOn(wordHierarchyStub, "make").mockResolvedValue(
+      new Promise((res) => {
+        res({
+          animais: {
+            felinos: {
+              carnivoros: {
+                selvagens: ["leões"],
+                doceis: ["gatos"],
+              },
+            },
+          },
+        });
+      })
+    );
+    expect(await sut.getDepth(3)).toEqual([
+      {
+        key: "carnivoros",
+        children: expect.arrayContaining([
+          "carnivoros",
+          "selvagens",
+          "doceis",
+          "leões",
+          "gatos",
+        ]),
+      },
+    ]);
+    expect(await sut.getDepth(4)).toEqual([
+      {
+        key: "selvagens",
+        children: expect.arrayContaining(["selvagens", "leões"]),
+      },
+      {
+        key: "doceis",
+        children: expect.arrayContaining(["doceis", "gatos"]),
+      },
     ]);
   });
 
-  it("should be able to get correct values from an extense text", async () => {
+  it("should analyze text and return correct values", async () => {
     const { sut } = makeSut();
-    const result = await sut.analize({ depth: 3, text: extenseText });
-
-    expect(result).toEqual([
-      {
-        value: "Felinos",
-        amount: 15,
-      },
-      {
-        value: "Equídeos",
-        amount: 11,
-      },
-      {
-        value: "Bovídeos",
-        amount: 2,
-      },
-
-      {
-        value: "Gorilas",
-        amount: 1,
-      },
-      {
-        value: "Chimpanzés",
-        amount: 1,
-      },
+    expect(await sut.analyze({ text: "Eu amo papagaios", depth: 2 })).toEqual([
+      { value: "Aves", amount: 1 },
     ]);
+    expect(
+      await sut.analyze({
+        text: "Eu tenho preferência por animais carnívoros",
+        depth: 5,
+      })
+    ).toEqual([]);
+    expect(
+      await sut.analyze({ text: "Eu vi gorilas e papagaios", depth: 3 })
+    ).toEqual(
+      expect.arrayContaining([
+        { value: "Pássaros", amount: 1 },
+        { value: "Primatas", amount: 1 },
+      ])
+    );
   });
 });
