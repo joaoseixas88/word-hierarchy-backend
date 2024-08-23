@@ -3,7 +3,7 @@ import { WordHierarchyAnalizer } from "./src/features/word-hierarchy-analyzer";
 import { WordHierarchyMakerByFile } from "./src/services/word-hierarchy-maker-by-file";
 import { WordThreeValidator } from "./src/validator";
 
-const availableArgs = ["depth", "filepath"];
+const availableArgs = ["depth", "filename"];
 
 const args = (() => {
   const argv = process.argv.slice(2);
@@ -32,10 +32,12 @@ const args = (() => {
   }
   return obj;
 })();
-const defaultPath = `${process.cwd()}/dicts/example.json`;
+const path = `${process.cwd()}/dicts/`;
+const getPath = (filename: string) => path + filename;
+const defaultFile = getPath("example.json");
 
 const schema = z.object({
-  filepath: z.string().optional(),
+  filename: z.string().optional(),
   verbose: z.boolean().optional(),
   depth: z.coerce.number(),
   text: z.string(),
@@ -53,7 +55,7 @@ const validateArgs = (values: any) => {
 };
 
 const outputMaker = (data: WordHierarchyAnalizer.Output): string => {
-  let output = "0";
+  let output = "0; ";
   if (data.length) {
     output = "";
     data.forEach((val) => {
@@ -71,24 +73,34 @@ async function main() {
     process.exit(1);
   }
   if (data) {
-    const { depth, filepath, verbose, text } = data;
+    try {
+      const { depth, filename, verbose, text } = data;
 
-    const validator = new WordThreeValidator();
-    const fileMaker = new WordHierarchyMakerByFile(
-      validator,
-      filepath ?? defaultPath
-    );
-    const textAnalyzer = new WordHierarchyAnalizer(fileMaker);
-    const result = await textAnalyzer.analyze({ depth, text });
-    if (verbose) {
-      const data = [
-        { Description: "Tempo de carregamento dos parâmetros", Time: fileMaker.timeLapsed },
-        { Description: "Tempo de verificação da frase", Time: textAnalyzer.timeLapsed },
-      ];
-
-      console.table(data);
+      const validator = new WordThreeValidator();
+      const fileMaker = new WordHierarchyMakerByFile(
+        validator,
+        filename ? getPath(filename) : defaultFile
+      );
+      const textAnalyzer = new WordHierarchyAnalizer(fileMaker);
+      const result = await textAnalyzer.analyze({ depth, text });
+      if (verbose) {
+        const data = [
+          {
+            Description: "Tempo de carregamento dos parâmetros",
+            Time: fileMaker.timeLapsed,
+          },
+          {
+            Description: "Tempo de verificação da frase",
+            Time: textAnalyzer.timeLapsed,
+          },
+        ];
+        console.table(data);
+      }
+      console.log(outputMaker(result));
+    } catch (error) {
+      console.error(error.message);
+      process.exit(1);
     }
-    console.log(outputMaker(result));
   }
 }
 
