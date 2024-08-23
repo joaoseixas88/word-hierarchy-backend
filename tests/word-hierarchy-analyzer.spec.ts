@@ -244,4 +244,12 @@ describe("WordHierarchyAnalizer", () => {
       ])
     );
   });
+  it("should analyze a text with over 5k characters", async () => {
+    const { sut } = makeSut();
+    expect(await sut.analyze({ text: extenseText, depth: 4 })).toEqual(expect.arrayContaining([
+      { amount: 19, value: "Felinos" },
+      { amount: 20, value: "Equídeos" },
+      { amount: 18, value: "Bovídeos" },
+    ]));
+  });
 });

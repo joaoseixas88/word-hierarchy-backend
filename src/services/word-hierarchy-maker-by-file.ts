@@ -2,21 +2,28 @@ import { WordHierarchyMaker, WordHierarchyThree } from "../types";
 import { readFile } from "fs/promises";
 import { WordThreeValidator } from "../validator";
 
-
-
 export class WordHierarchyMakerByFile implements WordHierarchyMaker {
   constructor(
     private readonly validator: WordThreeValidator,
     private readonly filepath: string
   ) {}
 
+  private _timeLapsed = 0;
+
   async read(filepath: string): Promise<string> {
     try {
-			const file = await readFile(filepath, { encoding: "utf-8" });
-      return  file
+      const start = new Date();
+      const file = await readFile(filepath, { encoding: "utf-8" });
+      const end = new Date();
+      this._timeLapsed = end.getMilliseconds() - start.getMilliseconds();
+      return file;
     } catch (error) {
       throw new Error("Error reading file");
     }
+  }
+
+  get timeLapsed() {
+    return this._timeLapsed;
   }
 
   async make(): Promise<WordHierarchyThree> {

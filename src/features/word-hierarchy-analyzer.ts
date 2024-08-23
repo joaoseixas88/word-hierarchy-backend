@@ -70,12 +70,15 @@ export class WordHierarchyAnalizer {
     return allLevels[depth];
   }
 
+  private _timeLapsed = 0;
+
   async analyze({
     depth,
     text,
   }: WordHierarchyAnalizer.Input): Promise<WordHierarchyAnalizer.Output> {
     const depthData = await this.getDepth(depth);
-		if(!depthData) return []
+    const start = new Date();
+    if (!depthData) return [];
     const result: WordHierarchyAnalizer.Output = Object.values(depthData).map(
       ({ children, key }) => {
         let amount = 0;
@@ -92,7 +95,14 @@ export class WordHierarchyAnalizer {
         };
       }
     );
-		return result.filter(val => val.amount)
+    const end = new Date();
+    this._timeLapsed = end.getMilliseconds() - start.getMilliseconds();
+
+    return result.filter((val) => val.amount);
+  }
+
+  get timeLapsed() {
+    return this._timeLapsed;
   }
 }
 
@@ -101,8 +111,9 @@ export namespace WordHierarchyAnalizer {
     depth: number;
     text: string;
   };
-  export type Output = {
-    value: string;
-    amount: number;
-  }[];
+  export type Output =
+    | {
+        value: string;
+        amount: number;
+      }[];
 }
