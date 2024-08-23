@@ -4,6 +4,7 @@ import {
   WordHierarchyThreeResult,
 } from "../src/types";
 import { WordHierarchyAnalizer } from "../src/word-hierarchy-analyzer";
+import { extenseText } from "./extense-text";
 
 const threeExample = {
   Animais: {
@@ -104,6 +105,35 @@ describe("WordHierarchyAnalizer", () => {
       { value: "Canários", amount: 2 },
       { value: "Papagaios", amount: 1 },
       { value: "Pardais", amount: 1 },
+    ]);
+  });
+
+  it("should be able to get correct values from an extense text", async () => {
+    const { sut } = makeSut();
+    const result = await sut.analize({ depth: 3, text: extenseText });
+
+    expect(result).toEqual([
+      {
+        value: "Felinos",
+        amount: 15,
+      },
+      {
+        value: "Equídeos",
+        amount: 11,
+      },
+      {
+        value: "Bovídeos",
+        amount: 2,
+      },
+
+      {
+        value: "Gorilas",
+        amount: 1,
+      },
+      {
+        value: "Chimpanzés",
+        amount: 1,
+      },
     ]);
   });
 });
