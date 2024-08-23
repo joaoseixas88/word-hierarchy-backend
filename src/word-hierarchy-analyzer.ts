@@ -1,6 +1,9 @@
-import { WordHierarchyThree, WordHierarchyThreeResult } from "./types";
+import { WordHierarchyMaker, WordHierarchyThree, WordHierarchyThreeResult } from "./types";
+
+
 
 export class WordHierarchyAnalizer {
+  constructor(private readonly wordHierarchyMaker: WordHierarchyMaker) {}
   private recursionAnalyze(
     objectThree: WordHierarchyThree,
     depth: number = 0,
@@ -33,5 +36,21 @@ export class WordHierarchyAnalizer {
 
     return result;
   }
-  analize() {}
+
+  private async getValuesByDepth(depth: number) {
+		const wordThree = await this.wordHierarchyMaker.make();
+		const result = this.recursionAnalyze(wordThree)
+    return result[depth]
+  }
+  analize(input: WordHierarchyAnalizer.Input) {
+    const { depth, text } = input;
+		
+  }
+}
+
+export namespace WordHierarchyAnalizer {
+  export type Input = {
+    depth: number;
+    text: string;
+  };
 }

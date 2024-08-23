@@ -1,13 +1,9 @@
-import { WordHierarchyThreeResult } from "../src/types";
+import {
+  WordHierarchyMaker,
+  WordHierarchyThree,
+  WordHierarchyThreeResult,
+} from "../src/types";
 import { WordHierarchyAnalizer } from "../src/word-hierarchy-analyzer";
-
-const makeSut = () => {
-  const sut = new WordHierarchyAnalizer();
-
-  return {
-    sut,
-  };
-};
 
 const threeExample = {
   Animais: {
@@ -26,6 +22,20 @@ const threeExample = {
       Pássaros: ["Canários", "Papagaios", "Pardais", "Rouxinóis"],
     },
   },
+};
+
+const makeSut = () => {
+  class WordHierarchyMakerStub implements WordHierarchyMaker {
+    make(): Promise<WordHierarchyThree> {
+      return new Promise((res) => res(threeExample));
+    }
+  }
+
+  const sut = new WordHierarchyAnalizer(new WordHierarchyMakerStub());
+
+  return {
+    sut,
+  };
 };
 
 const {
@@ -59,8 +69,16 @@ const sortData = (val: WordHierarchyThreeResult) =>
 describe("WordHierarchyAnalizer", () => {
   it("it shoult get the depth three correctly", () => {
     const { sut } = makeSut();
-    const result = sut['recursionAnalyze'](threeExample);
+    const result = sut["recursionAnalyze"](threeExample);
 
     expect(sortData(result)).toEqual(sortData(expected));
+  });
+
+  it("should get values correctly by depth", async () => {
+    const { sut } = makeSut();
+    const getValues = (depth: number) => sut["getValuesByDepth"](depth);
+		expect(await getValues(0)).toEqual(['Animais'])
+		expect(await getValues(1)).toEqual(["Mamíferos", "Aves"])
+		expect(await getValues(2).then(res => res.sort())).toEqual(expected['2'].sort())
   });
 });
