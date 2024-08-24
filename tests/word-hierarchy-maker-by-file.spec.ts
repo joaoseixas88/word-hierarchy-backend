@@ -1,4 +1,4 @@
-import { WordHierarchyReaderByFile } from "../src/services/word-hierarchy-file-reader";
+import { WordHierarchyFileService } from "../src/services/word-hierarchy-file-service";
 import { WordThreeValidator } from "../src/validator";
 
 const expectedValue = {
@@ -39,7 +39,7 @@ const makeSut = () => {
     }
   }
   const validator = new Validator();
-  const sut = new WordHierarchyReaderByFile(validator);
+  const sut = new WordHierarchyFileService(validator);
 
   return {
     sut,
@@ -51,7 +51,7 @@ const makeSut = () => {
 describe("WordHierarchyMakerByFile", () => {
   it("it should throws an error if filepath is not correct", async () => {
     const { validator } = makeSut();
-    const sut = new WordHierarchyReaderByFile(validator);
+    const sut = new WordHierarchyFileService(validator);
     const promise = await sut.getFileData("any_invalid");
     expect(promise).toBe(undefined);
   });

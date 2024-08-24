@@ -1,15 +1,29 @@
 import { readdir } from "fs/promises";
 import { inject, injectable } from "tsyringe";
-import { WordHierarchyReaderByFile } from "../../services";
+import { WordHierarchyFileService } from "../../services";
 import { HttpContextContract, HttpResponse } from "../../types/http";
 
 @injectable()
 export class GetFilesController {
   constructor(
-    private readonly fileMaker: WordHierarchyReaderByFile,
+    private readonly fileMaker: WordHierarchyFileService,
     @inject("basepath")
     private basepath: string
   ) {}
+
+  async getAllFilesData({ response }: HttpContextContract) {
+    const files = await readdir(this.basepath);
+    const data = await Promise.all(
+      files.map(async (file) => {
+        const fileData = await this.fileMaker.getFileData(this.basepath + file);
+        return {
+          filename: file,
+          data: fileData,
+        };
+      })
+    );
+    return response.ok(data);
+  }
 
   public async listFiles({
     response,

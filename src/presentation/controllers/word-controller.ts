@@ -2,7 +2,7 @@ import { inject, injectable } from "tsyringe";
 import { HttpContextContract } from "../../types/http";
 import { SchemaValidator } from "../../validator/schema-validator";
 import { z } from "zod";
-import { WordHierarchyReaderByFile } from "../../services";
+import { WordHierarchyFileService } from "../../services";
 import { WordHierarchyAnalizer } from "../../features";
 
 const schema = z.object({
@@ -16,7 +16,7 @@ export class WordController {
   constructor(
     @inject("basepath")
     private readonly basepath: string,
-    private readonly fileMaker: WordHierarchyReaderByFile,
+    private readonly fileMaker: WordHierarchyFileService,
     private readonly wordAnalyzer: WordHierarchyAnalizer
   ) {}
 

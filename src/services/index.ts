@@ -1,1 +1,1 @@
-export * from "./word-hierarchy-file-reader";
+export * from "./word-hierarchy-file-service";

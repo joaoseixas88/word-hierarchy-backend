@@ -4,7 +4,7 @@ import { WordHierarchyThree } from "../types";
 import { WordThreeValidator } from "../validator";
 
 @injectable()
-export class WordHierarchyReaderByFile {
+export class WordHierarchyFileService {
   constructor(private readonly validator: WordThreeValidator) {}
   private _timeLapsed = 0;
 
