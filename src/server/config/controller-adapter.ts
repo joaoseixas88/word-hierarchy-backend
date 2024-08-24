@@ -24,6 +24,7 @@ export const httpCtx = (req: Request, res: Response): HttpContextContract => ({
       statusCode: 500,
       data: "Internal server error",
     }),
+    created: () => ({ statusCode: 201 }),
   },
 });
 

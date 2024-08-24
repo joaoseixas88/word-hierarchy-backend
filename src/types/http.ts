@@ -14,5 +14,6 @@ export type HttpContextContract = {
     noContent(data: any): HttpResponse;
     internalServerError(): HttpResponse;
     notFound(data?: any): HttpResponse;
+		created(): HttpResponse
   };
 };
