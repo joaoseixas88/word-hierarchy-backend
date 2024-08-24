@@ -1,7 +1,7 @@
 import "./setup";
 import z from "zod";
 import { WordHierarchyAnalizer } from "./src/features/word-hierarchy-analyzer";
-import { WordHierarchyMakerByFile } from "./src/services/word-hierarchy-maker-by-file";
+import { WordHierarchyReaderByFile } from "./src/services/word-hierarchy-file-reader";
 import { WordThreeValidator } from "./src/validator";
 
 const availableArgs = ["depth", "filename"];
@@ -78,9 +78,9 @@ async function main() {
       const { depth, filename, verbose, text } = data;
 
       const validator = new WordThreeValidator();
-      const fileMaker = new WordHierarchyMakerByFile(validator);
+      const fileMaker = new WordHierarchyReaderByFile(validator);
       const textAnalyzer = new WordHierarchyAnalizer();
-      const dataToAnalyze = await fileMaker.make(
+      const dataToAnalyze = await fileMaker.getFileData(
         getPath(filename ? filename : "example.json")
       );
       if (!dataToAnalyze) {

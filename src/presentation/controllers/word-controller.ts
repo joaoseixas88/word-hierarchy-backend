@@ -2,7 +2,7 @@ import { inject, injectable } from "tsyringe";
 import { HttpContextContract } from "../../types/http";
 import { SchemaValidator } from "../../validator/schema-validator";
 import { z } from "zod";
-import { WordHierarchyMakerByFile } from "../../services";
+import { WordHierarchyReaderByFile } from "../../services";
 import { WordHierarchyAnalizer } from "../../features";
 
 const schema = z.object({
@@ -16,7 +16,7 @@ export class WordController {
   constructor(
     @inject("basepath")
     private readonly basepath: string,
-    private readonly fileMaker: WordHierarchyMakerByFile,
+    private readonly fileMaker: WordHierarchyReaderByFile,
     private readonly wordAnalyzer: WordHierarchyAnalizer
   ) {}
 
@@ -26,7 +26,7 @@ export class WordController {
 
   async getFileData({ request, response }: HttpContextContract) {
     const params = SchemaValidator.validateSchema(schema, request.allParams());
-    const data = await this.fileMaker.make(this.getFilePath(params.fileName));
+    const data = await this.fileMaker.getFileData(this.getFilePath(params.fileName));
     const result = await this.wordAnalyzer.analyze({ ...params, data } as any);
     return response.ok(result);
   }

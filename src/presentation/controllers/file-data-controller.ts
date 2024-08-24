@@ -1,12 +1,12 @@
 import { readdir } from "fs/promises";
 import { inject, injectable } from "tsyringe";
-import { WordHierarchyMakerByFile } from "../../services";
+import { WordHierarchyReaderByFile } from "../../services";
 import { HttpContextContract, HttpResponse } from "../../types/http";
 
 @injectable()
 export class GetFilesController {
   constructor(
-    private readonly fileMaker: WordHierarchyMakerByFile,
+    private readonly fileMaker: WordHierarchyReaderByFile,
     @inject("basepath")
     private basepath: string
   ) {}
@@ -21,7 +21,7 @@ export class GetFilesController {
   public async getFileDataByName({ request, response }: HttpContextContract) {
     try {
       const allParams = request.allParams();
-      const fileData = await this.fileMaker.make(
+      const fileData = await this.fileMaker.getFileData(
         this.basepath + allParams.filename
       );
       if (!fileData) {
