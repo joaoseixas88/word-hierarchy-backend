@@ -1,8 +1,6 @@
 import { WordHierarchyAnalizer } from "../src/features";
 import {
-  WordHierarchyMaker,
-  WordHierarchyThree,
-  WordHierarchyThreeResult,
+	WordHierarchyThreeResult
 } from "../src/types";
 import { extenseText } from "./mocks/extense-text";
 
@@ -26,17 +24,9 @@ const threeExample = {
 };
 
 const makeSut = () => {
-  class WordHierarchyMakerStub implements WordHierarchyMaker {
-    make(): Promise<WordHierarchyThree> {
-      return new Promise((res) => res(threeExample));
-    }
-  }
-  const wordHierarchyStub = new WordHierarchyMakerStub();
-  const sut = new WordHierarchyAnalizer(wordHierarchyStub);
-
+  const sut = new WordHierarchyAnalizer();
   return {
     sut,
-    wordHierarchyStub,
   };
 };
 
@@ -110,7 +100,7 @@ describe("WordHierarchyAnalizer", () => {
         felinos: ["gatos", "leões"],
       },
       construcoes: ["casas", "edificios"],
-    }) as object;
+    }) as Record<string | number,  any>;
     expect(result[1][0].children).toEqual(
       expect.arrayContaining(["animais", "gatos", "leões", "felinos"])
     );
@@ -132,7 +122,7 @@ describe("WordHierarchyAnalizer", () => {
           },
         },
       },
-    }) as object;
+    }) as Record<string | number,  any>;;
     expect(result[3][0].children).toEqual(
       expect.arrayContaining(["carnivoros", "gatos", "leões", "selvagens"])
     );
@@ -159,7 +149,7 @@ describe("WordHierarchyAnalizer", () => {
           },
         },
       },
-    }) as object;
+    }) as Record<string | number,  any>;;
     expect(result[7][0].children).toEqual(
       expect.arrayContaining(["internal", "values"])
     );
@@ -180,27 +170,23 @@ describe("WordHierarchyAnalizer", () => {
           },
         },
       },
-    }) as object;
+    }) as Record<string | number,  any>;;
     expect(result[8]).toBe(undefined);
   });
 
   it("should return correct level", async () => {
-    const { sut, wordHierarchyStub } = makeSut();
-    jest.spyOn(wordHierarchyStub, "make").mockResolvedValue(
-      new Promise((res) => {
-        res({
-          animais: {
-            felinos: {
-              carnivoros: {
-                selvagens: ["leões"],
-                doceis: ["gatos"],
-              },
-            },
+    const { sut } = makeSut();
+    const data = {
+      animais: {
+        felinos: {
+          carnivoros: {
+            selvagens: ["leões"],
+            doceis: ["gatos"],
           },
-        });
-      })
-    );
-    expect(await sut.getDepth(3)).toEqual([
+        },
+      },
+    };
+    expect(await sut.getDepth(3, data)).toEqual([
       {
         key: "carnivoros",
         children: expect.arrayContaining([
@@ -212,7 +198,7 @@ describe("WordHierarchyAnalizer", () => {
         ]),
       },
     ]);
-    expect(await sut.getDepth(4)).toEqual([
+    expect(await sut.getDepth(4, data)).toEqual([
       {
         key: "selvagens",
         children: expect.arrayContaining(["selvagens", "leões"]),
@@ -226,17 +212,26 @@ describe("WordHierarchyAnalizer", () => {
 
   it("should analyze text and return correct values", async () => {
     const { sut } = makeSut();
-    expect(await sut.analyze({ text: "Eu amo papagaios", depth: 2 })).toEqual([
-      { value: "Aves", amount: 1 },
-    ]);
+    expect(
+      await sut.analyze({
+        text: "Eu amo papagaios",
+        depth: 2,
+        data: threeExample,
+      })
+    ).toEqual([{ value: "Aves", amount: 1 }]);
     expect(
       await sut.analyze({
         text: "Eu tenho preferência por animais carnívoros",
         depth: 5,
+        data: threeExample,
       })
     ).toEqual([]);
     expect(
-      await sut.analyze({ text: "Eu vi gorilas e papagaios", depth: 3 })
+      await sut.analyze({
+        text: "Eu vi gorilas e papagaios",
+        depth: 3,
+        data: threeExample,
+      })
     ).toEqual(
       expect.arrayContaining([
         { value: "Pássaros", amount: 1 },
@@ -246,10 +241,14 @@ describe("WordHierarchyAnalizer", () => {
   });
   it("should analyze a text with over 5k characters", async () => {
     const { sut } = makeSut();
-    expect(await sut.analyze({ text: extenseText, depth: 4 })).toEqual(expect.arrayContaining([
-      { amount: 19, value: "Felinos" },
-      { amount: 20, value: "Equídeos" },
-      { amount: 18, value: "Bovídeos" },
-    ]));
+    expect(
+      await sut.analyze({ text: extenseText, depth: 4, data: threeExample })
+    ).toEqual(
+      expect.arrayContaining([
+        { amount: 19, value: "Felinos" },
+        { amount: 20, value: "Equídeos" },
+        { amount: 18, value: "Bovídeos" },
+      ])
+    );
   });
 });

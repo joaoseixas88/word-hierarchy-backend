@@ -1,4 +1,4 @@
-import { WordHierarchyMakerByFile } from "../src/services/word-hierarchy-maker-by-file";
+import { WordHierarchyReaderByFile } from "../src/services/word-hierarchy-file-reader";
 import { WordThreeValidator } from "../src/validator";
 
 const expectedValue = {
@@ -39,7 +39,7 @@ const makeSut = () => {
     }
   }
   const validator = new Validator();
-  const sut = new WordHierarchyMakerByFile(validator, filepath);
+  const sut = new WordHierarchyReaderByFile(validator);
 
   return {
     sut,
@@ -51,17 +51,14 @@ const makeSut = () => {
 describe("WordHierarchyMakerByFile", () => {
   it("it should throws an error if filepath is not correct", async () => {
     const { validator } = makeSut();
-    const sut = new WordHierarchyMakerByFile(
-      validator,
-      "any_invalid_directory"
-    );
-    const promise = sut.make();
-    await expect(promise).rejects.toEqual(new Error("Error reading file"));
+    const sut = new WordHierarchyReaderByFile(validator);
+    const promise = await sut.getFileData("any_invalid");
+    expect(promise).toBe(undefined);
   });
   it("it should throws an error if validator fails", async () => {
-    const { sut, validator } = makeSut();
+    const { sut, validator, filepath } = makeSut();
     jest.spyOn(validator, "isValid").mockReturnValueOnce(false);
-    const promise = sut.make();
+    const promise = sut.getFileData(filepath);
 
     await expect(promise).rejects.toEqual(
       new Error(
@@ -70,8 +67,8 @@ describe("WordHierarchyMakerByFile", () => {
     );
   });
   it("it parse data correctly if file exists and is in correct format", async () => {
-    const { sut } = makeSut();
-    const result = await sut.make();
+    const { sut, filepath } = makeSut();
+    const result = await sut.getFileData(filepath);
     expect(result).toEqual(expectedValue);
   });
 });
