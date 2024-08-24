@@ -1,5 +1,7 @@
+import { readdirSync, rmSync } from "fs";
 import { WordHierarchyFileService } from "../src/services/word-hierarchy-file-service";
 import { WordThreeValidator } from "../src/validator";
+import { unlink } from "fs/promises";
 
 const expectedValue = {
   Animais: {
@@ -30,6 +32,9 @@ const expectedValue = {
     Monumentos: ["Estátuas", "Praças", "Memoriais"],
   },
 };
+
+const makeFilepath = (filename: string) =>
+  `${process.cwd()}/dicts/${filename}.json`;
 
 const makeSut = () => {
   const filepath = process.cwd() + "/dicts/example.json";
@@ -70,5 +75,40 @@ describe("WordHierarchyMakerByFile", () => {
     const { sut, filepath } = makeSut();
     const result = await sut.getFileData(filepath);
     expect(result).toEqual(expectedValue);
+  });
+  it("it should parse data and save correctly", async () => {
+    const { sut } = makeSut();
+    const data = {
+      some: {
+        values: ["algo", "para", "salvar"],
+      },
+    };
+    const filepath = makeFilepath("fileToSave");
+
+    const result = await sut.saveFile(data, filepath);
+    const fileExists = readdirSync(process.cwd() + "/dicts").some(
+      (val) => val === "fileToSave.json"
+    );
+    expect(result).toBe(true);
+    expect(fileExists).toBe(true);
+    await unlink(filepath);
+  });
+  it("it should not save a file if data sent is invalid", async () => {
+    const { sut, validator } = makeSut();
+    jest.spyOn(validator, "isValid").mockReturnValue(false);
+    const data = [
+      {
+        some: {
+          values: ["para", "salvar"],
+        },
+      },
+    ];
+    const filepath = makeFilepath("fileToSave");
+    const result = await sut.saveFile(data as any, filepath);
+    const fileExists = readdirSync(process.cwd() + "/dicts").some(
+      (val) => val === "fileToSave.json"
+    );
+    expect(result).toBe(false);
+    expect(fileExists).toBe(false);
   });
 });

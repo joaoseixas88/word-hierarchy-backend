@@ -1,4 +1,4 @@
-import { readFile } from "fs/promises";
+import { readFile, writeFile } from "fs/promises";
 import { injectable } from "tsyringe";
 import { WordHierarchyThree } from "../types";
 import { WordThreeValidator } from "../validator";
@@ -8,6 +8,19 @@ export class WordHierarchyFileService {
   constructor(private readonly validator: WordThreeValidator) {}
   private _timeLapsed = 0;
 
+  async saveFile(data: WordHierarchyThree, filepath: string) {
+    const isValidData = this.validator.isValid(data);
+    if (!isValidData) {
+      return false;
+    } else {
+      try {
+        await writeFile(filepath, JSON.stringify(data));
+        return true;
+      } catch (error) {
+        return false;
+      }
+    }
+  }
   async read(filepath: string): Promise<string | undefined> {
     const start = new Date();
     try {
