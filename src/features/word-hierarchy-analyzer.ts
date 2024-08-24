@@ -1,8 +1,6 @@
+import { injectable } from "tsyringe";
 import {
-  WordHierarchyMaker,
-  WordHierarchyThree,
-  WordHierarchyThreeResult,
-  WordHierarchyThreeResultWithChildren,
+	WordHierarchyThree
 } from "../types";
 
 type ResultType = {
@@ -10,9 +8,8 @@ type ResultType = {
   children: string[];
 };
 
+@injectable()
 export class WordHierarchyAnalizer {
-  constructor(private readonly wordHierarchyMaker: WordHierarchyMaker) {}
-
   getChildrenData(
     obj: Record<string, object | string[]>,
     words: string[] = []
@@ -64,8 +61,7 @@ export class WordHierarchyAnalizer {
     }
     return result;
   }
-  async getDepth(depth: number) {
-    const data = await this.wordHierarchyMaker.make();
+  async getDepth(depth: number, data: WordHierarchyThree) {
     const allLevels = this.getLevels(data);
     return allLevels[depth];
   }
@@ -75,8 +71,9 @@ export class WordHierarchyAnalizer {
   async analyze({
     depth,
     text,
+    data,
   }: WordHierarchyAnalizer.Input): Promise<WordHierarchyAnalizer.Output> {
-    const depthData = await this.getDepth(depth);
+    const depthData = await this.getDepth(depth, data);
     const start = new Date();
     if (!depthData) return [];
     const result: WordHierarchyAnalizer.Output = Object.values(depthData).map(
@@ -110,6 +107,7 @@ export namespace WordHierarchyAnalizer {
   export type Input = {
     depth: number;
     text: string;
+    data: WordHierarchyThree;
   };
   export type Output =
     | {
