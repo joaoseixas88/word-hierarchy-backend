@@ -9,7 +9,7 @@ export class SchemaValidator {
   ) {
     try {
       return schema.parse(params);
-    } catch (error) {
+    } catch (error: any) {
       throw new ValidationException(error.issues, statusCode);
     }
   }

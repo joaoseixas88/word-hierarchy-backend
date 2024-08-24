@@ -8,7 +8,7 @@ export class WordThreeValidator {
     });
     return isString;
   }
-  private validateRecursevely(valueInCheck: object | Array<any>): boolean {
+  private validateRecursevely(valueInCheck: Record<string, any> | Array<any>): boolean {
     const checked: Array<boolean> = [];
     if (typeof valueInCheck === "object" && !Array.isArray(valueInCheck)) {
       for (const key in valueInCheck) {
