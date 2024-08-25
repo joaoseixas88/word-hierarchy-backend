@@ -25,6 +25,25 @@ export const httpCtx = (req: Request, res: Response): HttpContextContract => ({
       data: "Internal server error",
     }),
     created: () => ({ statusCode: 201 }),
+    sendFile: (filePath: string, fileName?: string) => {
+      const options = fileName
+        ? {
+            headers: {
+              "Content-Disposition": `attachment; filename=${fileName}`,
+            },
+          }
+        : {};
+      return res.sendFile(filePath, options, (err: any) => {
+        if (err) {
+          if(err.code === 'ENOENT'){
+						res.status(404).send("File not found");
+						return
+					}
+
+          res.status(500).send("Internal server error");
+        }
+      });
+    },
   },
 });
 
@@ -36,10 +55,12 @@ export const adaptMethod =
       const ctx = httpCtx(req, res);
       if (typeof instance[method] === "function") {
         const httpResponse: HttpResponse = await instance[method](ctx);
-        if (!httpResponse) {
-          return res.status(200).send();
+        if (httpResponse === undefined) {
+          return;
         }
-        return res.status(httpResponse.statusCode).json(httpResponse.data);
+        if (!res.headersSent) {
+          res.status(httpResponse.statusCode).json(httpResponse.data);
+        }
       }
     } catch (error) {
       console.log("error:", error);

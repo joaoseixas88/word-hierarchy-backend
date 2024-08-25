@@ -4,6 +4,8 @@ import { WordHierarchyFileService } from "../../services";
 import { HttpContextContract, HttpResponse } from "../../types/http";
 import { SchemaValidator } from "../../validator/schema-validator";
 import { GetFilesSchema } from "../../schemas/get-files-controller";
+import { ValidationException } from "../errors";
+import { ZodIssue } from "zod";
 
 @injectable()
 export class GetFilesController {
@@ -50,12 +52,28 @@ export class GetFilesController {
     }
   }
 
+  async downloadFile({ request, response }: HttpContextContract) {
+    try {
+      const { filename } = request.allParams();
+
+      return response.sendFile(
+        this.basepath + `${filename}`,
+        `${filename}.json`
+      );
+    } catch (error) {
+      return response.internalServerError();
+    }
+  }
+
   async saveData({ request, response }: HttpContextContract) {
     const { filename, data } = SchemaValidator.validateSchema(
       GetFilesSchema.saveFile(),
       request.allParams()
     );
-    const result = await this.fileMaker.saveFile(data, this.basepath + filename + '.json');
+    const result = await this.fileMaker.saveFile(
+      data,
+      this.basepath + filename + ".json"
+    );
     if (result) {
       return response.created();
     } else {

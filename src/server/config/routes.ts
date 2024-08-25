@@ -12,6 +12,10 @@ export default (app: Express): void => {
     adaptMethod(GetFilesController, "getFileDataByName")
   );
   router.get("/files/data", adaptMethod(GetFilesController, "getAllFilesData"));
-  router.get("/files", adaptMethod(GetFilesController, "listFiles"));   
-  router.post("/files", adaptMethod(GetFilesController, "saveData"));   
+  router.get("/files", adaptMethod(GetFilesController, "listFiles"));
+  router.post("/files", adaptMethod(GetFilesController, "saveData"));
+  router.get(
+    "/files/download/:filename",
+    adaptMethod(GetFilesController, "downloadFile")
+  );
 };

@@ -14,6 +14,7 @@ export type HttpContextContract = {
     noContent(data: any): HttpResponse;
     internalServerError(): HttpResponse;
     notFound(data?: any): HttpResponse;
-		created(): HttpResponse
+    created(): HttpResponse;
+    sendFile(filePath: string, fileName?: string): void;
   };
 };
