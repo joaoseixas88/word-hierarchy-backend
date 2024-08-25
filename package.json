@@ -8,6 +8,7 @@
   "devDependencies": {
     "@swc/core": "^1.7.14",
     "@swc/jest": "^0.2.36",
+    "@types/cors": "^2.8.17",
     "@types/express": "^4.17.21",
     "@types/jest": "^29.5.12",
     "@types/node": "^22.5.0",
@@ -20,11 +21,12 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "dev": "ts-node-dev --respawn  src/server/config",
-		"build":"tsc",
-		"start":"ts-node-dev src/server/config"
+    "build": "tsc",
+    "start": "ts-node-dev src/server/config"
   },
   "dependencies": {
     "core-js": "^3.38.1",
+    "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "reflect-metadata": "^0.2.2",
