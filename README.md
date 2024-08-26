@@ -11,18 +11,22 @@
 # Detalhe a respeita da cli.
 
 ## Comandos aceitos: 
-- -depth <n> 
-- -filename <s>
+```
+-depth <n> 
+-filename <s>
 text entre "algo para passar para a cli" aspas dulpas
-- -verbose - so deve ser passado como ultimo parametro e é opcional
+-verbose - so deve ser passado como ultimo parametro e é opcional
+```
 
-# HTTP API
+## HTTP API
 
-## Necessario arquivo .env com Definicao da porta da API => PORT=3000 por exemplo
+### Necessario arquivo .env com Definicao da porta da API => PORT=3000 por exemplo
 
-## Se desejar buildar a api, "yarn build", rodar com watch => yarn dev, sem watch yarn start
+### Se desejar buildar a api, "yarn build", rodar com watch => yarn dev, sem watch yarn start
 
-
- - EXEMPLO de comandos cli: bun cli.ts -depth 2 Eu tenho preferência por animais carnívoros”  
- - EXEMPLO de comandos cli: bun cli.ts -depth 2 Eu tenho preferência por animais carnívoros” -verbose  
- - EXEMPLO de comandos cli: bun cli.ts -depth 2 -filename example_2.json "os papagaios são demais, porém os chimpanzés são top"
+* EXEMPLO de comandos cli:
+```
+ bun cli.ts -depth 2 Eu tenho preferência por animais carnívoros”  
+ bun cli.ts -depth 2 Eu tenho preferência por animais carnívoros” -verbose  
+ bun cli.ts -depth 2 -filename example_2.json "os papagaios são demais, porém os chimpanzés são top"
+ ```
